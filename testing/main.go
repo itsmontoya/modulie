@@ -2,42 +2,47 @@ package main
 
 import (
 	"io"
+	"net/http"
 	"os"
 
-	"fmt"
-
-	"github.com/missionMeteora/apiserv"
+	"github.com/julienschmidt/httprouter"
 )
 
 func main() {
-	srv := apiserv.New()
-	srv.GET("/", getFile)
+	srv := httprouter.New()
+	srv.GET("/", getIndex)
 	srv.GET("/:filename", getFile)
-	srv.Run(":8080")
+	http.ListenAndServe(":8080", srv)
 }
 
-func getFile(ctx *apiserv.Context) *apiserv.Response {
-	filename, ext := ctx.Params.GetExt("filename")
-	fmt.Println(filename, ext)
-	if filename == "" && ext == "" {
-		filename = "index"
-		ext = "html"
-	}
+func getIndex(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
 
-	switch ext {
-	case "js":
-		ctx.SetContentType("application/javascript")
-	case "html":
-		ctx.SetContentType("text/html")
-	}
-
-	f, err := os.Open(filename + "." + ext)
+	f, err := os.Open("./index.html")
 	if err != nil {
-		ctx.WriteHeader(404)
-		return nil
+		w.WriteHeader(404)
+		return
 	}
-	defer f.Close()
 
-	io.Copy(ctx, f)
-	return nil
+	io.Copy(w, f)
+	f.Close()
+}
+
+func getFile(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "application/javascript")
+	filename := p.ByName("filename")
+	if filename == "modulie.js" {
+		filename = "../modulie.js"
+	} else {
+		filename = "./" + filename
+	}
+
+	f, err := os.Open(filename)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	io.Copy(w, f)
+	f.Close()
 }
