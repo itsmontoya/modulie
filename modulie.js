@@ -25,6 +25,7 @@ var modulie = (function () {
 		}
 
 		function sortEntry(entry) {
+			console.log("Entry?", entry);
 			var arr = bySrc[entry.src];
 			if (!arr) {
 				bySrc[entry.src] = arr = [];
@@ -88,18 +89,27 @@ var modulie = (function () {
 			}
 		};
 
-		download();
+		insertElement();
 
-		function download() {
+		// insertElement will set and insert our Object element in order to download our script
+		function insertElement() {
 			ele.data = src;
 			ele.type = "application/javascript";
 			ele.width = 0;
 			ele.height = 0;
-
-			ele.onload = onLoad;
-			ele.onerror = onError;
-
+			// Set onLoad and onError listeners
+			ele.addEventListener("load", onLoad);
+			ele.addEventListener("error", onError)
+			// Insert to document body
 			document.body.appendChild(ele);
+		}
+
+		function removeElement() {
+			ele.removeEventListener("load", onLoad);
+			ele.removeEventListener("error", onError);
+			if (ele.parentNode === document.body) {
+				document.body.removeChild(ele);
+			}
 		}
 
 		function onLoad(evt) {
@@ -110,8 +120,8 @@ var modulie = (function () {
 
 			// Set data as the javascript text within the contentDocument
 			data = getInner(ele);
-			// Remove data object from DOM
-			document.body.removeChild(ele);
+			// Remove element from DOM
+			removeElement();
 			// Set loaded boolean to true
 			loaded = true;
 			// Call each queued function
@@ -124,18 +134,14 @@ var modulie = (function () {
 
 		function onError(err) {
 			console.error("Error downloading " + src + ": ", err);
-			// Remove data object from DOM
-			document.body.removeChild(ele);
+			// Remove element from DOM
+			removeElement();
 			// Set error boolean to true
 			error = true;
 			// Call each queued function
 			queue.forEach(function (fn) {
 				fn();
 			});
-		}
-
-		function handleError(err) {
-			console.log(err.indexOf(ErrReference));
 		}
 
 		// newClosure will create a new closure for queued functions
