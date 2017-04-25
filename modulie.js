@@ -3,9 +3,6 @@ var modulie = (function () {
 		pkgs = {},
 		head = document.getElementsByTagName("head")[0];
 
-	var ErrReference = "Reference Error:",
-		ErrNotDefined = "is not defined";
-
 	// List will list the current scripts and packages
 	function List() {
 		console.log(scripts, pkgs);
