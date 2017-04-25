@@ -164,14 +164,41 @@ var modulie = (function () {
 
 		// getVals will get the values of the provided entries
 		function getVals(entries) {
-			var returnObj = {};
+			var returnObj = {},
+				__map = null,
+				addMapped = false;
 			// Parse javascript text
 			eval(data);
 
 			entries.forEach(function (entry) {
+				if (entry.name === null) {
+					addMapped = true;
+					return;
+				}
+
 				// Set the return object key as the package with the provided name
 				returnObj[entry.key] = eval(entry.name);
 			});
+
+			if (__map !== undefined) {
+				var ra = __map[src];
+				if (ra instanceof Array) {
+					ra.forEach(function (key) {
+						var pkg = pkgs[key];
+						if(!pkg){
+							pkg = eval(key);
+						}
+						
+						if(!returnObj[key] && addMapped) {
+							returnObj[key] = pkg;
+						}
+
+						if (!pkgs[key]) {
+							pkgs[key] = pkg
+						}
+					});
+				}
+			}
 
 			return returnObj;
 		}
@@ -186,6 +213,7 @@ var modulie = (function () {
 	// src - Source of the javascript module
 	// name - Name of the import module
 	// key - Reference for name (if key needs to differ from the official name, commonly used for version control)
+	// Note: If name and/or key are explicitly null (rather than undefined), no value updating will occur
 	function Entry(src, name, key) {
 		"use strict";
 
@@ -194,7 +222,7 @@ var modulie = (function () {
 		this.key = getKey();
 
 		function getName() {
-			if (!!name) {
+			if (name !== undefined) {
 				return name;
 			}
 
@@ -205,7 +233,7 @@ var modulie = (function () {
 		}
 
 		function getKey() {
-			if (!!key) {
+			if (key !== undefined) {
 				return key;
 			}
 
@@ -216,6 +244,7 @@ var modulie = (function () {
 	// Exports represents the exports fields for the module
 	function Exports() {
 		this.Import = Import;
+		this.List = List;
 		this.Entry = Entry;
 	}
 
