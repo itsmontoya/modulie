@@ -24,7 +24,7 @@ function main() {
 	};
 
 	function onError(err) {
-		console.errpr("Error?", err)
+		console.error("Error?", err)
 	};
 }
 
