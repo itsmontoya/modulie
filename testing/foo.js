@@ -22,6 +22,7 @@ var bar = (function(){
 	return new Exports;
 })();
 
-// Note: Populating the map object is only required if you want automatic mapping of the file's modules
-var __map = __map || {};
-__map["foo.js"] = ["foo","bar"];
+// Note: Populating the exports object is only required if you want automatic mapping of the file's modules
+var exports = exports || {};
+exports.foo = foo;
+exports.bar = bar;
