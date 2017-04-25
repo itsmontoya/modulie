@@ -8,7 +8,8 @@ Although there are a few industry-standard solutions for Javascript module impor
 ```javascript
 function main() {
 	// Some notes on Entries:
-	// - Calling an entry without a name will automatically assign the source filename with extension removed (foo.js -> foo)
+	// - Calling an entry without a name will automatically assign the source filename
+	//		with extension removed (foo.js -> foo)
 	// - Calling an entry without a key will automatically assign the name value
 	modulie.Import([
 		new modulie.Entry("foo.js"), // Imports the foo module as "foo"
