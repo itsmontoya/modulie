@@ -12,8 +12,10 @@ function main() {
 	//		with extension removed (foo.js -> foo)
 	// - Calling an entry without a key will automatically assign the name value
 	modulie.Import([
-		new modulie.Entry("foo.js"), // Imports the foo module as "foo"
-		new modulie.Entry("foo.js", "foo", "foo2") // Allows to import the foo module as "foo2"
+		// Imports the foo module as "foo"
+		new modulie.Entry("foo.js"), 
+		// Allows to import the foo module as "foo2"
+		new modulie.Entry("foo.js", "foo", "foo2") 
 	], onLoad, onError);
 
 	function onLoad(obj) {
