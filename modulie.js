@@ -72,8 +72,12 @@ var modulie = (function () {
 		this.getSrc = getSrc;
 		this.getVals = function (entries, onLoad, onError) {
 			if (loaded) {
-				// Script has already loaded, fast path to return values
-				onLoad(getVals(entries));
+				try {
+					// Script has already loaded, fast path to return values
+					onLoad(getVals(entries));
+				} catch (err) {
+					onError(err);
+				}
 			} else if (error) {
 				// Script has encountered an error, call onError
 				onError(src);
@@ -138,7 +142,12 @@ var modulie = (function () {
 						return;
 					}
 
-					onLoad(getVals(entries));
+					try {
+						onLoad(getVals(entries));
+					} catch (err) {
+						console.log("Catching..", err);
+						onError(err);
+					}
 				}
 			})(entries, onLoad, onError)
 		}
