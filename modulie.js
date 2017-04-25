@@ -1,19 +1,15 @@
 var modulie = (function () {
-	//"use strict"
-
-	var m = new Modulie(),
-		scripts = {},
+	var scripts = {},
 		pkgs = {},
 		head = document.getElementsByTagName("head")[0];
 
-	function Modulie() { }
-
 	// List will list the current scripts and packages
-	Modulie.prototype.List = function () {
+	function List() {
 		console.log(scripts, pkgs);
 	};
 
-	Modulie.prototype.Import = function (entries, onLoad, onError) {
+	// Import will import all the necessary scripts to match each provided entry
+	function Import(entries, onLoad, onError) {
 		"use strict";
 
 		var bySrc = {},
@@ -60,12 +56,12 @@ var modulie = (function () {
 				return;
 			}
 
-			console.error(err);
-			onError(err);
 			done = true;
+			onError(err);
 		}
 	};
 
+	// Script represents a javascript file to be downloaded and parsed
 	function Script(src) {
 		var ele = document.createElement('object'),
 			queue = [],
@@ -76,15 +72,15 @@ var modulie = (function () {
 		this.getSrc = getSrc;
 		this.getVals = function (entries, onLoad, onError) {
 			if (loaded) {
-				console.log("Fast path bitches")
+				// Script has already loaded, fast path to return values
 				onLoad(getVals(entries));
-				return;
 			} else if (error) {
+				// Script has encountered an error, call onError
 				onError(src);
-				return;
+			} else {
+				// Script has not yet loaded, push function to queue
+				queue.push(newClosure(entries, onLoad, onError));
 			}
-
-			queue.push(newClosure(entries, onLoad, onError));
 		};
 
 		download();
@@ -96,7 +92,7 @@ var modulie = (function () {
 			ele.height = 0;
 
 			ele.onload = onLoad;
-			ele.onrror = onError;
+			ele.onerror = onError;
 
 			document.body.appendChild(ele);
 		}
@@ -107,28 +103,33 @@ var modulie = (function () {
 				return;
 			}
 
+			// Set data as the javascript text within the contentDocument
 			data = getInner(ele);
+			// Remove data object from DOM
+			document.body.removeChild(ele);
+			// Set loaded boolean to true
 			loaded = true;
-
+			// Call each queued function
 			queue.forEach(function (fn) {
 				fn();
 			});
-
+			// Clear queue
 			queue = [];
-			document.body.removeChild(ele);
 		}
 
 		function onError(err) {
 			console.error("Error downloading " + src + ": ", err);
+			// Remove data object from DOM
 			document.body.removeChild(ele);
-
+			// Set error boolean to true
+			error = true;
+			// Call each queued function
 			queue.forEach(function (fn) {
 				fn();
 			});
-
-			error = true;
 		}
 
+		// newClosure will create a new closure for queued functions
 		function newClosure(entries, onLoad, onError) {
 			return (function (entries, onLoad, onError) {
 				return function () {
@@ -142,27 +143,30 @@ var modulie = (function () {
 			})(entries, onLoad, onError)
 		}
 
-
+		// getSrc will get the source of a script
 		function getSrc() {
 			return src;
 		}
 
+		// getVals will get the values of the provided entries
 		function getVals(entries) {
 			var returnObj = {};
+			// Parse javascript text
 			eval(data);
 
 			entries.forEach(function (entry) {
+				// Set the return object key as the package with the provided name
 				returnObj[entry.key] = eval(entry.name);
 			});
 
 			return returnObj;
 		}
 
+		// getInner will get the inner value of the contentDocument 
 		function getInner(o) {
 			return o.contentDocument.body.childNodes[0].innerHTML;
 		}
 	}
-
 
 	// Entry is an import entry
 	// src - Source of the javascript module
@@ -197,7 +201,7 @@ var modulie = (function () {
 
 	// Exports represents the exports fields for the module
 	function Exports() {
-		this.Import = m.Import;
+		this.Import = Import;
 		this.Entry = Entry;
 	}
 
@@ -207,15 +211,19 @@ var modulie = (function () {
 			s = scripts[src];
 
 		if (!s) {
+			// Script at this source does not yet exist, create it
 			s = scripts[src] = new Script(src);
 		}
 
+		// Attempt to populate entries from cache
 		entries.forEach(getFromCache);
+		// Get values of the remaining entries which do not yet exist in cache
 		s.getVals(entries.filter(packageDoesntExist), handleLoad, onError);
 
 		function getFromCache(entry) {
 			var pkg = pkgs[entry.key];
 			if (!!pkg) {
+				// Package exists in cache, set it within the return object
 				returnObj[entry.key] = pkg;
 			}
 		}
@@ -226,11 +234,13 @@ var modulie = (function () {
 
 		function handleLoad(obj) {
 			for (var key in obj) {
-				// Ensure the package is still empty
+				var pkg = obj[key];
+				// Set the package for the specified key within the return object
+				returnObj[key] = pkg;
+				// Ensure the package is still empty before setting
 				if (!pkgs[key]) {
-					returnObj[key] = pkgs[key] = obj[key];
+					pkgs[key] = pkg
 				}
-
 			}
 
 			onLoad(src, returnObj);
