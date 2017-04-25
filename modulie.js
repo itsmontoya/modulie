@@ -3,6 +3,9 @@ var modulie = (function () {
 		pkgs = {},
 		head = document.getElementsByTagName("head")[0];
 
+	var ErrReference = "Reference Error:",
+		ErrNotDefined = "is not defined";
+
 	// List will list the current scripts and packages
 	function List() {
 		console.log(scripts, pkgs);
@@ -76,7 +79,8 @@ var modulie = (function () {
 					// Script has already loaded, fast path to return values
 					onLoad(getVals(entries));
 				} catch (err) {
-					onError(err);
+					// For some reason, the first argument is not passed to the callback
+					onError(null, err);
 				}
 			} else if (error) {
 				// Script has encountered an error, call onError
@@ -133,6 +137,10 @@ var modulie = (function () {
 			});
 		}
 
+		function handleError(err) {
+			console.log(err.indexOf(ErrReference));
+		}
+
 		// newClosure will create a new closure for queued functions
 		function newClosure(entries, onLoad, onError) {
 			return (function (entries, onLoad, onError) {
@@ -145,8 +153,8 @@ var modulie = (function () {
 					try {
 						onLoad(getVals(entries));
 					} catch (err) {
-						console.log("Catching..", err);
-						onError(err);
+						// For some reason, the first argument is not passed to the callback
+						onError(null, err);
 					}
 				}
 			})(entries, onLoad, onError)
