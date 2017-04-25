@@ -31,8 +31,8 @@ func getIndex(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 func getFile(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/javascript")
 	filename := p.ByName("filename")
-	if filename == "modulie.js" {
-		filename = "../modulie.js"
+	if filename == "modulie.js" || filename == "modulie.compiled.js" {
+		filename = "../" + filename
 	} else {
 		filename = "./" + filename
 	}
