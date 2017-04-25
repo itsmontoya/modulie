@@ -165,7 +165,7 @@ var modulie = (function () {
 		// getVals will get the values of the provided entries
 		function getVals(entries) {
 			var returnObj = {},
-				__map = null,
+				exports = {},
 				addMapped = false;
 			// Parse javascript text
 			eval(data);
@@ -180,23 +180,18 @@ var modulie = (function () {
 				returnObj[entry.key] = eval(entry.name);
 			});
 
-			if (!!__map) {
-				var ra = __map[src];
-				if (ra instanceof Array) {
-					ra.forEach(function (key) {
-						var pkg = pkgs[key];
-						if(!pkg){
-							pkg = eval(key);
-						}
+			for (var key in exports) {
+				var pkg = pkgs[key];
+				if (!pkg) {
+					pkg = eval(key);
+				}
 
-						if(!returnObj[key] && addMapped) {
-							returnObj[key] = pkg;
-						}
+				if (!returnObj[key] && addMapped) {
+					returnObj[key] = pkg;
+				}
 
-						if (!pkgs[key]) {
-							pkgs[key] = pkg
-						}
-					});
+				if (!pkgs[key]) {
+					pkgs[key] = pkg
 				}
 			}
 
