@@ -4,7 +4,7 @@ Modulie is a simple module import manager for Javascript in the browser.
 ## But, why?
 Although there are a few industry-standard solutions for Javascript module imports, nothing felt quite right to me. I wanted to be able to import modules while having the experience feel clean and simple. 
 
-# Usage
+## Usage
 ```javascript
 function main() {
 	// Some notes on Entries:
