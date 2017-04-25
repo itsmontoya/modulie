@@ -1,0 +1,2 @@
+#!/bin/bash
+cat modulie.js | closure-compiler --js_output_file modulie.compiled.js
