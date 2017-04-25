@@ -180,7 +180,7 @@ var modulie = (function () {
 				returnObj[entry.key] = eval(entry.name);
 			});
 
-			if (__map !== undefined) {
+			if (!!__map) {
 				var ra = __map[src];
 				if (ra instanceof Array) {
 					ra.forEach(function (key) {
@@ -188,7 +188,7 @@ var modulie = (function () {
 						if(!pkg){
 							pkg = eval(key);
 						}
-						
+
 						if(!returnObj[key] && addMapped) {
 							returnObj[key] = pkg;
 						}
