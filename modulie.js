@@ -25,7 +25,6 @@ var modulie = (function () {
 		}
 
 		function sortEntry(entry) {
-			console.log("Entry?", entry);
 			var arr = bySrc[entry.src];
 			if (!arr) {
 				bySrc[entry.src] = arr = [];
